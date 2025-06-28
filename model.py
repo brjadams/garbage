@@ -10,10 +10,11 @@ from transformers import AutoTokenizer
 from helper import get_converted_doc, chunk_it
 from docling.datamodel.base_models import InputFormat
 from langchain_postgres import PGVector
+from langchain_huggingface import HuggingFaceEmbeddings
 
-# EMBED_MODEL = "sentence-transformers/all-mpnet-base-v2"
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-SOURCE_DOC = "all_tweets_classified_10.csv"
+EMBED_MODEL = "sentence-transformers/all-mpnet-base-v2"
+# EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+SOURCE_DOC = "all_tweets_classified.csv"
 
 connectionStr = "postgresql+psycopg://myuser:mymypassword@localhost:5432/mydatabase"
 
@@ -31,7 +32,8 @@ def get_tokenizer(model_id):
 
 
 def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
-    embeddings_model = get_embedding_model(model_id=model_name)
+    # embeddings_model = get_embedding_model(model_id=model_name)
+    embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
     embeddings_tokenizer = get_tokenizer(model_id=model_name)
     chunker = HybridChunker(tokenizer=embeddings_tokenizer, merge_peers=True)
     print(f"{embeddings_tokenizer.get_max_tokens()=}")
@@ -44,9 +46,9 @@ def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
         print("=" * 80)  # Separator for clarity
     vector_store = PGVector(
         embeddings=embeddings_model,
+        use_jsonb=True,
         collection_name="my_embeddings",
-        connection=connectionStr,
-        # use_jsonb=True,
+        connection=connectionStr
     )
     ids = vector_store.add_documents(texts)
     print(f"{len(ids)} documents added to the vector database")
