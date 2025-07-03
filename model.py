@@ -1,62 +1,113 @@
-from docling_core.transforms.chunker.hybrid_chunker import HybridChunker
-from docling_core.transforms.chunker.tokenizer.base import BaseTokenizer
-from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
 from transformers import AutoTokenizer, AutoModel
+from langchain_huggingface import HuggingFaceEmbeddings
+import asyncio
 
 # from langchain_huggingface import HuggingFaceEmbeddings
 from transformers import AutoTokenizer
 
 # from langchain_ollama.llms import OllamaLLM
-from helper import get_converted_doc, chunk_it
-from docling.datamodel.base_models import InputFormat
-from langchain_postgres import PGVector
-from langchain_huggingface import HuggingFaceEmbeddings
+from csv_import import CsvProcessor
+from helper import convert_json_to_langchain_docs, chunk_bluesky_documents
+from langchain_postgres import PGEngine, PGVector
+
+POSTGRES_USER = "myuser"
+POSTGRES_DB = "mydatabase"
+POSTGRES_PW = "mypassword"
+POSTGRES_HOST = "localhost"
+POSTGRES_PORT = "5432"
+TABLENAME = "langchain_pg_embedding"
 
 EMBED_MODEL = "sentence-transformers/all-mpnet-base-v2"
 # EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-SOURCE_DOC = "all_tweets_classified.csv"
+# SOURCE_DOC = "all_tweets_classified_10.csv"
+SOURCE_DOC = "./tweets.7k.csv"
 
 connectionStr = "postgresql+psycopg://myuser:mymypassword@localhost:5432/mydatabase"
 
 
 # MAX_TOKENS = 64
-def get_embedding_model(model_id="sentence-transformers/all-mpnet-base-v2"):
+def get_embedding_model(model_id=EMBED_MODEL):
     return AutoModel.from_pretrained(model_id)
 
 
-def get_tokenizer(model_id):
-    tokenizer: BaseTokenizer = HuggingFaceTokenizer(
-        tokenizer=AutoTokenizer.from_pretrained(model_id)
+# def get_tokenizer(model_id=EMBED_MODEL):
+#     tokenizer: BaseTokenizer = HuggingFaceTokenizer(
+#         tokenizer=AutoTokenizer.from_pretrained(model_id)
+#     )
+#     return tokenizer
+
+
+def getPGEngine():
+    CONNECTION_STRING = (
+        f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PW}@{POSTGRES_HOST}"
+        f":{POSTGRES_PORT}/{POSTGRES_DB}"
     )
-    return tokenizer
+    pg_engine = PGEngine.from_connection_string(url=CONNECTION_STRING)
+    return pg_engine
 
 
-def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
+def pg_add_documents(store:PGVector, documents):
+    d = store.add_documents(documents)
+    return d
+
+
+async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
     # embeddings_model = get_embedding_model(model_id=model_name)
-    embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-    embeddings_tokenizer = get_tokenizer(model_id=model_name)
-    chunker = HybridChunker(tokenizer=embeddings_tokenizer, merge_peers=True)
-    print(f"{embeddings_tokenizer.get_max_tokens()=}")
-    texts = chunk_it(SOURCE_DOC, chunker)
-    print(f"{len(texts)} document chunks created")
-    for document in texts:
-        print(f"Document ID: {document.metadata['doc_id']}")
-        print(f"Source: {document.metadata['source']}")
-        print(f"Content:\n{document.page_content}")
-        print("=" * 80)  # Separator for clarity
+    embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    json_documents = CsvProcessor(csv_file_name=SOURCE_DOC).export_to_json(
+        keys_to_drop=[],
+        keys_to_metadata=[
+            "mod_class",
+            "confidence",
+            "top_groups",
+            "match_score",
+            "score_per_100_char",
+            "screen_name",
+        ],
+    )
+    documents = convert_json_to_langchain_docs(data=json_documents, text_column="tweet_text", metadata="metadata")
+    chunked_documents = chunk_bluesky_documents(documents, chunk_char_overlap=20, chunk_char_size=340)
     vector_store = PGVector(
         embeddings=embeddings_model,
+        pre_delete_collection=True,
         use_jsonb=True,
-        collection_name="my_embeddings",
-        connection=connectionStr
+        collection_name="bluesky",
+        connection=connectionStr,
+        collection_metadata={},
+        # async_mode=True,
+        create_extension=True,
+        
     )
-    ids = vector_store.add_documents(texts)
-    print(f"{len(ids)} documents added to the vector database")
-
+    
+    ids = pg_add_documents(vector_store, chunked_documents)
+    print(ids)
+    # await semantic_search(vector_store, query)
+    # await vector_search(vector_store, query, embeddings_model)
+    # print("No. Embeddings: {len(texts)}")
+    # ids = vector_store.add_documents(texts)
+    # print(f"{len(ids)} documents added to the vector database")
+    # print(f"ids stored: {ids}")
+    found = vector_store.similarity_search("energiewende", k=1, filter={"metadata": ">0.4"})
+    for doc in found:
+        print(f"* Found: {doc}")
+    
 
 # def run_model(model_name):
 #     model = OllamaLLM(model=model_name)
 
 
+async def semantic_search(vector_store, query):
+    results = await vector_store.asimilarity_search(query=f"{query}")
+    for doc in results:
+        print(f"* {doc.page_content} [{doc.metadata}]")
+
+
+async def vector_search(store, query, embedding):
+    query_vector = embedding.embed_query(query)
+    docs = await store.asimilarity_search_by_vector(query_vector, k=2)
+    for d in docs:
+        print(f"Result: {d.page_content.tweet_text}")
+
+
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

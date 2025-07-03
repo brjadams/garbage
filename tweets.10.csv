@@ -1,4 +1,4 @@
-row_id	mod_class	confidence	top_groups	match_score	tweet_length	score_per_100 char	screen_name	tweet_text
+row_id	mod_class	confidence	top groups	match score	tweet_length	score_per_100_char	screen name	tweet text
 0	none	high	none	0	93	0.00000	pubpolicy 1 Amanda Litman amandalitman.bsky.social	Proud to see @runforsomething.net alum @etelhaxhiaj.bsky.social leading when it matters most.
 1	none	high	none	0	130	0.00000	pubpolicy audience It's Serendipity rainnil.bsky.social	@peters.senate.gov Please Oppose The No Rogue Ruling Act H.R. 1526. Tell A Senator everyone else use the  @5calls.org app. ~Rainni
 2	none	high	none	0	131	0.00000	pubpolicy audience It's Serendipity rainnil.bsky.social	@pasenatorsaval.com Please Oppose The No Rogue Ruling Act H.R. 1526. Tell A Senator everyone else use the  @5calls.org app. ~Rainni
@@ -9,4 +9,4 @@ row_id	mod_class	confidence	top_groups	match_score	tweet_length	score_per_100 ch
 7	none	high	none	0	34	0.00000	pubpolicy 1 Corey Rayburn Yung coreyryung.bsky.social	"Have you considered Mitt Romney?"
 8	003	high	3	5	157	3.18471	pubpolicy 1 David Darmofal daviddarmofal.bsky.social	Steve Bannon, who's been hoping to influence this conclave for years, calls Pope Leo XIV the "worst pick for MAGA Catholics" www.politico.com/news/2025/05...
 9	weak	high	6	1	90	1.11111	pubpolicy 1 Olivier Schmitt olivierschmitt.bsky.social	Forthcoming in the inaugural issue of « Law and Geoeconomics », with Anna Vlasiuk Nibe
-
+10	weak	high	13	1	293	0.34130	pubpolicy 0 isaac sevier.io	One thing that surprised me while learning about this is that I had been taught at Stanford about energiewende, the energy transition. What they left out but is well known in Germany is it was twinned with rekommunalisierung, remunicipalization. The success was entirely stripped from context.
