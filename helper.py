@@ -42,7 +42,6 @@ def chunk_it(source, chnkr) -> list[Document]:
     # with console.screen():
     for i, chunk in enumerate(chnkr.chunk(converter.convert(source=source).document)):
         print(f"Chunks for Doc #{i}: {len(chunk.meta.doc_items)}")
-        pdb.set_trace()
         texts.append(
             Document(
                 page_content=chunk.text,
@@ -53,7 +52,7 @@ def chunk_it(source, chnkr) -> list[Document]:
     return texts
 
 
-def chunk_bluesky_documents(
+def chunk_documents(
     docs: Iterable[Document], chunk_char_size: int = 700, chunk_char_overlap: int = 20
 ):
     from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -76,9 +75,10 @@ def convert_json_to_langchain_docs(
     data_to_convert = json.loads(data) if isinstance(data, str) else data
     langchain_documents = []
     for doc in data_to_convert:
-        print(f"Document: {doc}")
+        # console.log(f"Doc: {doc}")
         if doc[text_column] is not None:
             langchain_documents.append(
-                Document(page_content=doc[text_column], metadata=doc[metadata_key])
+                Document(page_content=doc[text_column], id=doc["uuid"], metadata=doc[metadata_key])
             )
     return langchain_documents
+

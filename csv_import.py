@@ -30,6 +30,8 @@ class CsvProcessor:
             # Read the CSV file into a pandas DataFrame
             self.df = pd.read_csv(self.csv_file_name, delimiter="\t")
             self.df.columns = self.df.columns.str.replace(" ", "_")
+            import uuid
+            self.df['uuid'] = str([uuid.uuid4() for _ in range(len(self.df.index))])
             self.df.dropna(subset=['tweet_text'], inplace=True)
             print(f"Successfully loaded CSV: {self.csv_file_name}")
         except FileNotFoundError as e:
