@@ -24,7 +24,7 @@ class BlueSkyMetaExtractor(BaseMetaExtractor):
         # print(dir(chunk))
         row = {}
         row_text = chunk.text
-        pdb.set_trace()
+        # pdb.set_trace()
 
         # Extracting and converting new fields
         try:

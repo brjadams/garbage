@@ -75,7 +75,6 @@ def convert_json_to_langchain_docs(
     data_to_convert = json.loads(data) if isinstance(data, str) else data
     langchain_documents = []
     for doc in data_to_convert:
-        # console.log(f"Doc: {doc}")
         if doc[text_column] is not None:
             langchain_documents.append(
                 Document(page_content=doc[text_column], id=doc["uuid"], metadata=doc[metadata_key])

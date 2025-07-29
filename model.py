@@ -15,6 +15,7 @@ from csv_import import CsvProcessor
 from helper import convert_json_to_langchain_docs, chunk_documents
 from langchain_postgres import PGEngine, PGVector
 
+
 POSTGRES_USER = "myuser"
 POSTGRES_DB = "mydatabase"
 POSTGRES_PW = "mypassword"
@@ -31,42 +32,19 @@ SOURCE_DOC = "./tweets.7k.csv"
 connectionStr = "postgresql+psycopg://myuser:mymypassword@localhost:5432/mydatabase"
 
 
-# MAX_TOKENS = 64
-def get_embedding_model(model_id=EMBED_MODEL):
-    return AutoModel.from_pretrained(model_id)
-
-
-# def get_tokenizer(model_id=EMBED_MODEL):
-#     tokenizer: BaseTokenizer = HuggingFaceTokenizer(
-#         tokenizer=AutoTokenizer.from_pretrained(model_id)
-#     )
-#     return tokenizer
-
-
-def getPGEngine():
-    CONNECTION_STRING = (
-        f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PW}@{POSTGRES_HOST}"
-        f":{POSTGRES_PORT}/{POSTGRES_DB}"
-    )
-    pg_engine = PGEngine.ffrom_connection_string(url=CONNECTION_STRING, vector_size=768)
-    return pg_engine
-
-
 def pg_add_documents(store: PGVector, documents):
     d = store.add_documents(documents)
     return d
 
 
 async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
-    embeddings_model = get_embedding_model(model_id=model_name)
-    # embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     ner_model = AutoModelForTokenClassification.from_pretrained(NER_EMBED_MODEL)
     ner_tokenizer = AutoTokenizer.from_pretrained(NER_EMBED_MODEL)
 
     json_documents = CsvProcessor(csv_file_name=SOURCE_DOC).export_to_json(
         keys_to_drop=[],
         keys_to_metadata=[
-            "uuid",
             "mod_class",
             "confidence",
             "top_groups",
@@ -76,11 +54,10 @@ async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
         ],
     )
 
-    ner_pipe = get_standard_ner_pipeline(model_name=NER_EMBED_MODEL, tokenizer_name=NER_EMBED_MODEL)
+    ner_pipe = get_standard_ner_pipeline(
+        model_name=NER_EMBED_MODEL, tokenizer_name=NER_EMBED_MODEL
+    )
 
-    for doc in json.loads(json_documents)[:3]:
-        pdb.set_trace()
-        print(doc)
     documents = convert_json_to_langchain_docs(
         data=json_documents, text_column="tweet_text", metadata_key="metadata"
     )
@@ -99,7 +76,7 @@ async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
         create_extension=True,
     )
 
-    # ids = pg_add_documents(vector_store, chunked_documents)
+    ids = pg_add_documents(vector_store, chunked_documents)
 
     # await semantic_search(vector_store, query)
     # await vector_search(vector_store, query, embeddings_model)
