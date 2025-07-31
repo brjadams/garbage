@@ -67,17 +67,16 @@ def chunk_documents(
     return text_splitter.split_documents(docs)
 
 
-def convert_json_to_langchain_docs(
-    data,
-    text_column,
-    metadata_key="metadata"
-):
+def convert_json_to_langchain_docs(data, text_column, metadata_key="metadata"):
     data_to_convert = json.loads(data) if isinstance(data, str) else data
     langchain_documents = []
     for doc in data_to_convert:
         if doc[text_column] is not None:
             langchain_documents.append(
-                Document(page_content=doc[text_column], id=doc["uuid"], metadata=doc[metadata_key])
+                Document(
+                    page_content=doc[text_column],
+                    id=doc["uuid"],
+                    metadata=doc[metadata_key],
+                )
             )
     return langchain_documents
-

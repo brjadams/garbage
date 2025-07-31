@@ -5,7 +5,7 @@ import asyncio
 import pdb
 from ner import get_standard_ner_pipeline
 import json
-
+import constants
 # from langchain_huggingface import HuggingFaceEmbeddings
 from transformers import AutoTokenizer
 import transformers
@@ -38,9 +38,7 @@ def pg_add_documents(store: PGVector, documents):
 
 
 async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
-    embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    ner_model = AutoModelForTokenClassification.from_pretrained(NER_EMBED_MODEL)
-    ner_tokenizer = AutoTokenizer.from_pretrained(NER_EMBED_MODEL)
+    # embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     json_documents = CsvProcessor(csv_file_name=SOURCE_DOC).export_to_json(
         keys_to_drop=[],
@@ -54,9 +52,9 @@ async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
         ],
     )
 
-    ner_pipe = get_standard_ner_pipeline(
-        model_name=NER_EMBED_MODEL, tokenizer_name=NER_EMBED_MODEL
-    )
+    # ner_pipe = get_standard_ner_pipeline(
+    #     model_name=NER_EMBED_MODEL, tokenizer_name=NER_EMBED_MODEL
+    # )
 
     documents = convert_json_to_langchain_docs(
         data=json_documents, text_column="tweet_text", metadata_key="metadata"
@@ -64,20 +62,13 @@ async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
     chunked_documents = chunk_documents(
         documents, chunk_char_overlap=20, chunk_char_size=340
     )
-    vector_store = PGVector(
-        embeddings=embeddings_model,
-        pre_delete_collection=True,
-        use_jsonb=True,
-        embedding_length=384,
-        collection_name=COLLECTION_NAME,
-        connection=connectionStr,
-        collection_metadata={"model": f"{model_name}"},
-        # async_mode=True,
-        create_extension=True,
-    )
-
-    ids = pg_add_documents(vector_store, chunked_documents)
-
+    import database
+    vector_store = database.getRegularVectorStore()
+    ids = vector_store.add_documents(chunked_documents)
+    print(f"{len(ids)} documents added to the vector database")
+    
+    ner_vector_store = database.getNERVectorStore()
+    
     # await semantic_search(vector_store, query)
     # await vector_search(vector_store, query, embeddings_model)
     # print("No. Embeddings: {len(texts)}")
