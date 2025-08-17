@@ -1,6 +1,7 @@
 from transformers import AutoModelForTokenClassification, AutoTokenizer, AutoModel
 from transformers.pipelines import pipeline
 from langchain_huggingface import HuggingFaceEmbeddings
+
 import asyncio
 import pdb
 from ner import get_standard_ner_pipeline
@@ -75,9 +76,9 @@ async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
     # ids = vector_store.add_documents(texts)
     # print(f"{len(ids)} documents added to the vector database")
     # print(f"ids stored: {ids}")
-    # found = vector_store.similarity_search("energiewende", k=1, filter={"metadata": ">0.4"})
-    # for doc in found:
-    #     print(f"* Found: {doc}")
+    found = vector_store.similarity_search("energiewende", k=1, filter={"metadata": ">0.4"})
+    for doc in found:
+        print(f"* Found: {doc}")
 
 
 # def run_model(model_name):
