@@ -10,7 +10,6 @@ from langchain_core.documents import Document
 import pdb
 from typing import List, Optional
 from docling_core.transforms.chunker.hybrid_chunker import HybridChunker
-from meta_extract import BlueSkyMetaExtractor
 from langchain_core.documents import Document
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
