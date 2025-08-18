@@ -17,18 +17,18 @@ from helper import convert_json_to_langchain_docs, chunk_documents
 from langchain_postgres import PGEngine, PGVector
 
 
-POSTGRES_USER = "myuser"
-POSTGRES_DB = "mydatabase"
-POSTGRES_PW = "mypassword"
-POSTGRES_HOST = "localhost"
-POSTGRES_PORT = "5432"
-COLLECTION_NAME = "tweet_embeddings"
+# POSTGRES_USER = "myuser"
+# POSTGRES_DB = "mydatabase"
+# POSTGRES_PW = "mypassword"
+# POSTGRES_HOST = "localhost"
+# POSTGRES_PORT = "5432"
+# COLLECTION_NAME = "tweet_embeddings"
 
-EMBED_MODEL = "sentence-transformers/all-mpnet-base-v2"
-NER_EMBED_MODEL = "dslim/bert-base-NER"
-# EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-# SOURCE_DOC = "all_tweets_classified_10.csv"
-SOURCE_DOC = "./tweets.7k.csv"
+# EMBED_MODEL = "sentence-transformers/all-mpnet-base-v2"
+# NER_EMBED_MODEL = "dslim/bert-base-NER"
+# # EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+# # SOURCE_DOC = "all_tweets_classified_10.csv"
+# SOURCE_DOC = "./tweets.7k.csv"
 
 connectionStr = "postgresql+psycopg://myuser:mymypassword@localhost:5432/mydatabase"
 
