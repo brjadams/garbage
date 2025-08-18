@@ -18,6 +18,9 @@ services:
       - "8000:80"
     environment:
       - REDIS_URL=redis://redis:6379
+    volumes:
+      - .:/app
+    command: .venv/bin/fastapi dev --host 0.0.0.0 --port 80 --reload
     networks:
       - app-network
     depends_on:
@@ -34,7 +37,16 @@ services:
       - "5432:5432"
     networks:
       - app-network
-
+  rq-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: rq-worker
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+    command: /app/.venv/bin/rq worker default
 networks:
   app-network:
     driver: bridge

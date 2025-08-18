@@ -60,20 +60,23 @@ async def main(model_name=EMBED_MODEL, file=SOURCE_DOC):
     chunked_documents = chunk_documents(
         documents, chunk_char_overlap=20, chunk_char_size=340
     )
-    import database
+    import db.database as database
+
     vector_store = database.getRegularVectorStore()
     ids = vector_store.add_documents(chunked_documents)
     print(f"{len(ids)} documents added to the vector database")
-    
+
     ner_vector_store = database.getNERVectorStore()
-    
+
     # await semantic_search(vector_store, query)
     # await vector_search(vector_store, query, embeddings_model)
     # print("No. Embeddings: {len(texts)}")
     # ids = vector_store.add_documents(texts)
     # print(f"{len(ids)} documents added to the vector database")
     # print(f"ids stored: {ids}")
-    found = vector_store.similarity_search("energiewende", k=1, filter={"metadata": ">0.4"})
+    found = vector_store.similarity_search(
+        "energiewende", k=1, filter={"metadata": ">0.4"}
+    )
     for doc in found:
         print(f"* Found: {doc}")
 

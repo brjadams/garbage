@@ -1,5 +1,6 @@
 import constants
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, WebSocket
+from fastapi.responses import HTMLResponse
 from rq_dashboard_fast import RedisQueueDashboard
 from fastapi_mcp import FastApiMCP
 from pydantic import BaseModel
@@ -41,15 +42,21 @@ def readiness_probe():
         return {"status": "NOT READY"}
 
 
-@router.post("/document/")
-def process_document(document: Document):
+@router.get("/document/")
+def process_document():
     """
     Endpoint to process a document.
     Accepts a JSON payload with the document content.
     """
-    if not document.content:
-        raise HTTPException(status_code=400, detail="Document content cannot be empty")
+    # if not document.content:
+    #     raise HTTPException(status_code=400, detail="Document content cannot be empty")
     
     # Example processing: Count the number of words in the document
-    word_count = len(document.content.split())
-    return {"word_count": word_count, "message": "Document processed successfully"}
+    # word_count = len(document.content.split())
+    print("Processing document...")
+    from queus.q import queue
+    from queus.jobs import count_words_at_url
+    job = queue.enqueue(count_words_at_url, 'https://www.landsend.com')
+    return {"job": job.started_at, "message": "Document processed successfully"}
+
+app.include_router(router)
