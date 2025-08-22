@@ -29,6 +29,7 @@ dependencies = [
     "redis>=6.4.0",
     "replicate>=1.0.7",
     "requests>=2.32.4",
+    "rich>=14.0.0",
     "rq-dashboard-fast>=0.5.12",
     "rq>=2.5.0",
     "sentence-transformers>=4.1.0",

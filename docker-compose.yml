@@ -9,22 +9,22 @@ services:
     networks:
       - app-network
 
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: fastapi-api
-    ports:
-      - "8000:80"
-    environment:
-      - REDIS_URL=redis://redis:6379
-    volumes:
-      - .:/app
-    command: .venv/bin/fastapi dev --host 0.0.0.0 --port 80 --reload
-    networks:
-      - app-network
-    depends_on:
-      - redis
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: fastapi-api
+  #   ports:
+  #     - "8000:80"
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379
+  #   volumes:
+  #     - .:/app
+  #   command: .venv/bin/fastapi dev --host 0.0.0.0 --port 80 --reload
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - redis
 
   postgres:
     image: postgres:latest

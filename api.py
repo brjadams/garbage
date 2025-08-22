@@ -1,9 +1,12 @@
-import constants
-from fastapi import FastAPI, HTTPException, APIRouter, WebSocket
+from fastapi import APIRouter, FastAPI, HTTPException, WebSocket
 from fastapi.responses import HTMLResponse
-from rq_dashboard_fast import RedisQueueDashboard
 from fastapi_mcp import FastApiMCP
 from pydantic import BaseModel
+from rq_dashboard_fast import RedisQueueDashboard
+
+import constants
+from routers.jobs import jobs
+
 
 # Define a model for document processing input
 class Document(BaseModel):
@@ -13,7 +16,7 @@ app = FastAPI()
 
 dashboard = RedisQueueDashboard(constants.REDIS_HOST, "/rq")
 app.mount("/rq", dashboard)
-router = APIRouter(prefix="/process", tags=["document_processing"])
+process_router = APIRouter(prefix="/process", tags=["document_processing"])
 
 mcp = FastApiMCP(app)
 mcp.mount()
@@ -42,7 +45,7 @@ def readiness_probe():
         return {"status": "NOT READY"}
 
 
-@router.get("/document/")
+@process_router.get("/document/")
 def process_document():
     """
     Endpoint to process a document.
@@ -54,9 +57,11 @@ def process_document():
     # Example processing: Count the number of words in the document
     # word_count = len(document.content.split())
     print("Processing document...")
-    from queus.q import queue
     from queus.jobs import count_words_at_url
+    from queus.q import queue
     job = queue.enqueue(count_words_at_url, 'https://www.landsend.com')
     return {"job": job.started_at, "message": "Document processed successfully"}
 
-app.include_router(router)
+
+
+app.include_router(process_router)
