@@ -2,12 +2,10 @@ import os
 import uuid
 
 import rich
-from fastapi import APIRouter, FastAPI, File, HTTPException, UploadFile, WebSocket
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, FastAPI, File, HTTPException, UploadFile
 from fastapi_mcp import FastApiMCP
 from pydantic import BaseModel
 from rq import Callback
-from rq.job import Dependency
 from rq_dashboard_fast import RedisQueueDashboard
 
 import constants
@@ -96,7 +94,10 @@ async def upload_csv(file: UploadFile = File(...)):
             "filename": uuid_fn,
             "content_type": file.content_type,
             "message": "File uploaded successfully! Processing of file has started.",
-            "job": {"csv_to_db_job_id": str(store_in_redis_as_json.id), "embed_job_id": str(embed_json_docs_in_vectordb.id)},
+            "job": {
+                "csv_to_db_job_id": str(store_in_redis_as_json.id),
+                "embed_job_id": str(embed_json_docs_in_vectordb.id),
+            },
         }
     except Exception as E:
         raise HTTPException(

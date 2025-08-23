@@ -1,9 +1,6 @@
-import os
 from langchain_huggingface import HuggingFaceEmbeddings
 import constants
-from langchain_postgres import PGEngine
 from langchain_postgres.vectorstores import PGVector
-from langchain_core.documents import Document
 from dotenv import load_dotenv
 
 load_dotenv()

@@ -1,12 +1,9 @@
 # ...existing code...
-import asyncio
 import os
 
 import pandas as pd
 import requests
 import rich
-from redis import Redis, exceptions
-from redis.commands.json.decoders import decode_list, unstring
 from redis.commands.json.path import Path
 from rich import print
 from rq import Retry
@@ -42,6 +39,7 @@ async def embed_documents(hash: str = ""):  # Adjust parameters as needed
         "status": 200,
         "hash": str(hash),
         "message": f"Embedding process completed for hash {hash}.",
+        "details": json.dumps(data),
     }
 
 

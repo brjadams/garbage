@@ -1,4 +1,3 @@
-from rq import Queue
 from redis import Redis
 
 import constants

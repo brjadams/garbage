@@ -1,9 +1,5 @@
-from fastapi import APIRouter, FastAPI, HTTPException, WebSocket
-from fastapi.responses import HTMLResponse
-from fastapi_mcp import FastApiMCP
-from pydantic import BaseModel
+from fastapi import APIRouter
 from rq.job import Job
-from rq_dashboard_fast import RedisQueueDashboard
 
 from redisconnect import REDIS_CONNECTION
 

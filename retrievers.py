@@ -1,5 +1,4 @@
-from langchain.retrievers import BM25Retriever, EnsembleRetriever
-from langchain.schema import Document
+from langchain.retrievers import BM25Retriever
 
 
 def get_bm25_retriever(vector_store, k=5):

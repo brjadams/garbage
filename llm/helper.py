@@ -1,12 +1,10 @@
 import json
-import pdb
 import uuid
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
 from docling.document_converter import DocumentConverter
 from docling_core.transforms.chunker.base import BaseChunk
 from docling_core.transforms.chunker.hierarchical_chunker import DocChunk
-from docling_core.transforms.chunker.hybrid_chunker import HybridChunker
 from docling_core.types.doc.labels import DocItemLabel
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
