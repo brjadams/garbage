@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from redis import Redis
+from redisconnect import Redis
 from rq import Worker
 
 # Preload libraries

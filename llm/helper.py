@@ -1,19 +1,18 @@
-from typing import Iterable, Optional
-import uuid
 import json
+import pdb
+import uuid
+from typing import Iterable, List, Optional
+
+from docling.document_converter import DocumentConverter
 from docling_core.transforms.chunker.base import BaseChunk
 from docling_core.transforms.chunker.hierarchical_chunker import DocChunk
-from docling_core.types.doc.labels import DocItemLabel
-from rich.console import Console
-from docling.document_converter import DocumentConverter
-from langchain_core.documents import Document
-import pdb
-from typing import List, Optional
 from docling_core.transforms.chunker.hybrid_chunker import HybridChunker
-from langchain_core.documents import Document
+from docling_core.types.doc.labels import DocItemLabel
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )  # This is the key import
+from langchain_core.documents import Document
+from rich.console import Console
 
 console = Console(
     width=200,  # for getting Markdown tables rendered nicely
@@ -54,8 +53,6 @@ def chunk_it(source, chnkr) -> list[Document]:
 def chunk_documents(
     docs: Iterable[Document], chunk_char_size: int = 700, chunk_char_overlap: int = 20
 ):
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
-
     # Initialize the text splitter
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_char_size,  # The maximum number of characters in a chunk

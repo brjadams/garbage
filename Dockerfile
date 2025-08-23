@@ -15,7 +15,10 @@ WORKDIR /app
 # Install dependencies
 RUN uv sync --locked
 
+# insure the virtual environment is activated
+ENV PATH="/app/.venv/bin/:$PATH"
+
 # Expose the port FastAPI will run on
 EXPOSE 80
 
-CMD ["/app/.venv/bin/fastapi", "run", "dev", "--port", "80", "--host", "0.0.0.0"]
+# CMD ["fastapi", "dev", "--port", "80", "--host", "0.0.0.0"]

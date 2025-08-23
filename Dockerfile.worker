@@ -14,3 +14,5 @@ WORKDIR /app
 
 # Install dependencies
 RUN uv sync --locked
+# insure the virtual environment is activated
+ENV PATH="/app/.venv/bin/:$PATH"
