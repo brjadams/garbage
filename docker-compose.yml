@@ -57,6 +57,7 @@ services:
       - redis
     environment:
       REDIS_HOST: redis
+      POSTGRES_HOST: postgres
     volumes:
       - .:/app
     command: /app/.venv/bin/rq worker csv_to_db csv_to_redis_json embed_doc

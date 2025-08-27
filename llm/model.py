@@ -2,12 +2,13 @@ import asyncio
 import json
 
 import rich
+from langchain_postgres import PGVector
+
+# from ner import get_standard_ner_pipeline
+import constants
+import db.database as database
 
 from .helper import chunk_documents, convert_json_to_langchain_docs
-from langchain_postgres import PGVector
-# from ner import get_standard_ner_pipeline
-
-import constants
 
 # POSTGRES_USER = "myuser"
 # POSTGRES_DB = "mydatabase"
@@ -22,51 +23,40 @@ import constants
 # # SOURCE_DOC = "all_tweets_classified_10.csv"
 # SOURCE_DOC = "./tweets.7k.csv"
 
-connectionStr = "postgresql+psycopg://myuser:mymypassword@localhost:5432/mydatabase"
 
 EMBED_MODEL = constants.EMBED_MODEL
 
-
-def pg_add_documents(store: PGVector, documents):
-    d = store.add_documents(documents)
-    return d
-
-
 async def main(model_name=EMBED_MODEL, data: str = "", hash: str = ""):
-    # embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
-    # json_documents = CsvProcessor(csv_file_name=file).export_to_json(
-    #     keys_to_drop=[],
-    #     keys_to_metadata=[
-    #         "mod_class",
-    #         "confidence",
-    #         "top_groups",
-    #         "match_score",
-    #         "score_per_100_char",
-    #         "screen_name",
-    #     ],
-    # )
     content = ""
-    try:
-        if data:
-            content = json.loads(data)
-        # ner_pipe = get_standard_ner_pipeline(
-        #     model_name=NER_EMBED_MODEL, tokenizer_name=NER_EMBED_MODEL
-        # )
+    rich.print(f"Model: {model_name}, Data type: {type(data)}, Hash: {hash}")
+    # try:
+    if data:
+        content = json.loads(data)
+    # ner_pipe = get_standard_ner_pipeline(
+    #     model_name=NER_EMBED_MODEL, tokenizer_name=NER_EMBED_MODEL
+    # )
 
-        documents = convert_json_to_langchain_docs(
-            data=content, text_column="tweet_text", metadata_key="metadata"
-        )
-        chunked_documents = chunk_documents(
-            documents, chunk_char_overlap=20, chunk_char_size=340
-        )
-    except Exception as e:
-        print(f"Error processing documents: {e}")
-        return
+    documents = convert_json_to_langchain_docs(
+        data=content, text_column="tweet text", metadata_key="metadata"
+    )
+    chunked_documents = chunk_documents(
+        documents, chunk_char_overlap=20, chunk_char_size=340
+    )
+
     rich.print(f"Total chunked documents: {len(chunked_documents)}")
-    import db.database as database
 
-    vector_store = database.getRegularVectorStore()
+    vector_store = database.getRegularVectorStore(
+        metadata={
+            "embedding_model": EMBED_MODEL,
+            "collection_name": "skeets",
+            "embedding_length": 384,
+            "document_hash": hash,
+        }
+    )
+    vector_store.create_collection()
+    rich.print(
+        f"Using Postgres collection: {vector_store.collection_name} with embedding model: {model_name}"
+    )
     ids = vector_store.add_documents(chunked_documents)
     # print(f"{len(ids)} documents added to the vector database")
 
@@ -87,6 +77,7 @@ async def main(model_name=EMBED_MODEL, data: str = "", hash: str = ""):
     return {
         "status": "completed",
         "collection": vector_store.collection_name,
+        "original_document_uuid": hash,
         "documents_added": len(ids),
         "message": f"Processed {len(ids)} documents and added to vector store.",
     }

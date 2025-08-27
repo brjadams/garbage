@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from rq.job import Queue
+from rq import Queue
 
 from redisconnect import REDIS_CONNECTION
 

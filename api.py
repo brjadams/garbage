@@ -2,6 +2,7 @@ import os
 import uuid
 
 import rich
+import uvicorn
 from fastapi import APIRouter, FastAPI, File, HTTPException, UploadFile
 from fastapi_mcp import FastApiMCP
 from pydantic import BaseModel
@@ -9,6 +10,7 @@ from rq import Callback
 from rq_dashboard_fast import RedisQueueDashboard
 
 import constants
+from auth.router import clerk_router
 from queus.jobs import report_success
 from routers.jobs import job_router
 
@@ -22,7 +24,6 @@ app = FastAPI()
 
 dashboard = RedisQueueDashboard(constants.REDIS_CONN_STRING, "/rq")
 app.mount("/rq", dashboard)
-
 process_router = APIRouter(prefix="/process", tags=["document_processing"])
 
 mcp = FastApiMCP(app)
@@ -110,3 +111,8 @@ async def upload_csv(file: UploadFile = File(...)):
 
 app.include_router(process_router)
 app.include_router(job_router)
+app.include_router(clerk_router)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

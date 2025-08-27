@@ -65,12 +65,16 @@ def convert_json_to_langchain_docs(data, text_column, metadata_key="metadata"):
     data_to_convert = json.loads(data) if isinstance(data, str) else data
     langchain_documents = []
     for doc in data_to_convert:
-        if doc[text_column] is not None:
-            langchain_documents.append(
-                Document(
-                    page_content=doc[text_column],
-                    id=doc["uuid"],
-                    metadata=doc[metadata_key],
-                )
+        if doc.get(text_column) is None:
+            console.print(f"Skipping document with missing {text_column} in: {doc}")
+            continue
+        if doc.get("uuid") is None:
+            doc["uuid"] = str(uuid.uuid4())
+        langchain_documents.append(
+            Document(
+                page_content=doc[text_column],
+                id=doc["uuid"],
+                metadata=doc,
             )
+        )
     return langchain_documents

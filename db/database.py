@@ -7,29 +7,35 @@ load_dotenv()
 
 # connection = "postgresql+psycopg://langchain:langchain@localhost:6024/langchain"  # Uses psycopg3!
 # connectionStr = "postgresql+psycopg://myuser:mymypassword@localhost:5432/mydatabase"
-connectionStr = f"postgresql+psycopg://{constants.POSTGRES_USER}:{constants.POSTGRES_PW}@{constants.POSTGRES_HOST}:{constants.POSTGRES_PORT}/{constants.POSTGRES_DB}"
+# connectionStr = f"postgresql+psycopg://{constants.POSTGRES_USER}:{constants.POSTGRES_PW}@{constants.POSTGRES_HOST}:{constants.POSTGRES_PORT}/{constants.POSTGRES_DB}"
 NER_COLLECTION_NAME = "ner_embeddings"
 REGULAR_COLLECTION_NAME = "regular_embeddings"
 
 
-def _getVectorStore(embedding_model, collection_name: str, embedding_length: int = 384):
+def _getVectorStore(
+    embedding_model,
+    collection_name: str,
+    embedding_length: int = 384,
+    metadata: dict = {},
+):
     embeddings_model = HuggingFaceEmbeddings(model_name=embedding_model)
     vector_store = PGVector(
         embeddings=embeddings_model,
         collection_name=collection_name,
-        connection=connectionStr,
+        connection=constants.PG_CONNECTION_STR,
         embedding_length=embedding_length,
-        collection_metadata={"model": f"{embedding_model}"},
+        collection_metadata=metadata,
     )
     return vector_store
 
 
-def getRegularVectorStore(
-    embedding_model=constants.EMBED_MODEL,
-    collection_name=constants.REGULAR_COLLECTION_NAME,
-    embedding_length=constants.EMBED_MODEL_TOKEN_SIZE,
-):
-    return _getVectorStore(embedding_model, collection_name, embedding_length)
+def getRegularVectorStore(metadata: dict):
+    return _getVectorStore(
+        metadata.get("embedding_model"),
+        metadata.get("collection_name", "regular_embeddings"),
+        metadata.get("embedding_length", 384),
+        metadata=metadata,
+    )
 
 
 def getNERVectorStore(
