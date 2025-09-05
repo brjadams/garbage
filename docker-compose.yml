@@ -27,6 +27,10 @@ services:
       - "8000:80"
     environment:
       - REDIS_CONN_STRING=redis://redis:6379/
+      - CLERK_ISSUER=https://immense-husky-73.clerk.accounts.dev
+      - CLERK_JWKS_URL=https://immense-husky-73.clerk.accounts.dev/.well-known/jwks.json
+      - CLERK_SECRET_KEY=sk_test_QXCpszmSj7GgtwQaYCbQDr7SnjdhsVcgNTWyceDlEg
+      - POSTGRES_HOST=postgres
     volumes:
       - .:/app
       - ./uploads:/app/uploads

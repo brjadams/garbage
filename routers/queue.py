@@ -6,7 +6,6 @@ from redisconnect import REDIS_CONNECTION
 q_router = APIRouter(prefix="/job", tags=["jobs"])
 
 
-
 @q_router.get("/queue/{queue_name}")
 def list_jobs_by_queue(queue_name: str):
     queue = Queue(queue_name, connection=REDIS_CONNECTION)

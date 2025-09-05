@@ -4,6 +4,7 @@ import uuid
 import rich
 import uvicorn
 from fastapi import APIRouter, FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse
 from fastapi_mcp import FastApiMCP
 from pydantic import BaseModel
 from rq import Callback
@@ -13,6 +14,7 @@ import constants
 from auth.router import clerk_router
 from queus.jobs import report_success
 from routers.jobs import job_router
+from routers.search import document_search_router
 
 
 # Define a model for document processing input
@@ -20,7 +22,7 @@ class Document(BaseModel):
     content: str
 
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 dashboard = RedisQueueDashboard(constants.REDIS_CONN_STRING, "/rq")
 app.mount("/rq", dashboard)
@@ -52,6 +54,51 @@ def readiness_probe():
         return {"status": "READY"}
     else:
         return {"status": "NOT READY"}
+
+@app.get("/", response_class=HTMLResponse)
+async def read_items():
+    return """
+    <html>
+        <head>
+            <title>Get Auth</title>
+        </head>
+        <body>
+            <h1>Look ma! HTML!</h1>
+            <div id="app"></div>
+        <script
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_aW1tZW5zZS1odXNreS03My5jbGVyay5hY2NvdW50cy5kZXYk"
+        src="https://immense-husky-73.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript"
+        ></script>
+
+        <script>
+        window.addEventListener('load', async function () {
+            await Clerk.load()
+
+            if (Clerk.isSignedIn) {
+            document.getElementById('app').innerHTML = `
+                <div id="user-button"></div>
+            `
+
+            const userButtonDiv = document.getElementById('user-button')
+
+            Clerk.mountUserButton(userButtonDiv)
+            } else {
+            document.getElementById('app').innerHTML = `
+                <div id="sign-in"></div>
+            `
+
+            const signInDiv = document.getElementById('sign-in')
+
+            Clerk.mountSignIn(signInDiv)
+            }
+        })
+        </script>
+        </body>
+    </html>
+    """
 
 
 @process_router.post("/document/")
@@ -112,6 +159,7 @@ async def upload_csv(file: UploadFile = File(...)):
 app.include_router(process_router)
 app.include_router(job_router)
 app.include_router(clerk_router)
+app.include_router(document_search_router)
 
 
 if __name__ == "__main__":

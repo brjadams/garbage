@@ -26,6 +26,7 @@ from .helper import chunk_documents, convert_json_to_langchain_docs
 
 EMBED_MODEL = constants.EMBED_MODEL
 
+
 async def main(model_name=EMBED_MODEL, data: str = "", hash: str = ""):
     content = ""
     rich.print(f"Model: {model_name}, Data type: {type(data)}, Hash: {hash}")
@@ -37,7 +38,7 @@ async def main(model_name=EMBED_MODEL, data: str = "", hash: str = ""):
     # )
 
     documents = convert_json_to_langchain_docs(
-        data=content, text_column="tweet text", metadata_key="metadata"
+        data=content, text_column="tweet_text", metadata_key="metadata"
     )
     chunked_documents = chunk_documents(
         documents, chunk_char_overlap=20, chunk_char_size=340
@@ -81,10 +82,6 @@ async def main(model_name=EMBED_MODEL, data: str = "", hash: str = ""):
         "documents_added": len(ids),
         "message": f"Processed {len(ids)} documents and added to vector store.",
     }
-
-
-# def run_model(model_name):
-#     model = OllamaLLM(model=model_name)
 
 
 async def semantic_search(vector_store, query):

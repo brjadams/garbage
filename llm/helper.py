@@ -6,9 +6,7 @@ from docling.document_converter import DocumentConverter
 from docling_core.transforms.chunker.base import BaseChunk
 from docling_core.transforms.chunker.hierarchical_chunker import DocChunk
 from docling_core.types.doc.labels import DocItemLabel
-from langchain.text_splitter import (
-    RecursiveCharacterTextSplitter,
-)  # This is the key import
+from langchain_text_splitters import RecursiveCharacterTextSplitter  # This is the key import
 from langchain_core.documents import Document
 from rich.console import Console
 

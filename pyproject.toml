@@ -43,3 +43,8 @@ dependencies = [
     "uvicorn>=0.35.0",
     "zlib-ng>=0.5.1",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.12",
+]

@@ -1,5 +1,5 @@
 import logging
-
+import rich
 import requests
 from clerk_backend_api import Clerk
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -43,11 +43,14 @@ security = HTTPBearer()
 
 
 @clerk_router.get("/")
-async def protected_route(
+def protected_route(
     request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     token = credentials.credentials
+    rich.print(f"Token: {token}")
     payload = decode_token(token)
+    rich.print(f"Payload: {payload}")
+    logger.debug(f"Decoded token payload: {payload}")
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(status_code=401, detail="User ID not found in token")

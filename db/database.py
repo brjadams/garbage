@@ -23,7 +23,7 @@ def _getVectorStore(
         embeddings=embeddings_model,
         collection_name=collection_name,
         connection=constants.PG_CONNECTION_STR,
-        embedding_length=embedding_length,
+        embedding_length=embedding_length or None,
         collection_metadata=metadata,
     )
     return vector_store
